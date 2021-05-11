@@ -54,6 +54,10 @@ double Temp_Val;                                                               /
 
 String Time_Date = "";                                                              //String holding time and date
 
+ /*Variables for average temp calc*/ 
+    const int Avg = 25;                                                                    // Number of readings to average
+    double OF[Avg];                                                                  // Array to store readings for Object temp in F
+
 
 
 /*****************************************************
@@ -128,8 +132,18 @@ void tempCalc(){
  **********************************************************/
 void getTemp(){
 
-   Temp_Val = mlx.readObjectTempF();
-   Time_Date = get_time();
+   for(int y = 0; y < Avg; y++){
+        OF[y] = mlx.readObjectTempF();                          // reads temp values
+      }
+    
+      for(int j = 0; j < Avg-1; j++){
+        Temp_Val += OF[j];
+      }
+    
+      Temp_Val = Temp_Val / Avg;                 //Divide by total number of readings for average
+    
+      Serial.print(Temp_Val); Serial.print("*F ");
+      Serial.println();
 }
 
 
@@ -195,12 +209,10 @@ void sendData(){
    client.print("\n\n");
    client.print(postStr); 
 
-  
-  Serial.print(Temp_Val); Serial.print("*F  Date and Time: "); //Serial.println(Time_Date);
 
   Serial.println();
  }
     client.stop();
   
-    delay(2000);
+    delay(15000);
 }
