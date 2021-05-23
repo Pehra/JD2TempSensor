@@ -17,9 +17,6 @@ TempSens::TempSens(){
 	
 }
 
-/*
-
-*/
 void TempSens::putSleep(){
 	
 }
