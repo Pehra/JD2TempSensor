@@ -38,14 +38,13 @@ public:
 	void putSleep();
 	void wakeUp(int type);
 	void sendData();
-	float getTemp();
+	double getTemp();
 	void liveRead(int time);
 	void displaySick();
 	
 private:
 	Adafruit_MLX90614 mlx;
 	
-	void initGoogleSheet();
 	void initWifi();
 	void initThingSpeak();
 	void initTemp();
