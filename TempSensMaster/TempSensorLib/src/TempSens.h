@@ -38,6 +38,7 @@ public:
 	void putSleep();
 	void wakeUp(int type);
 	void sendData();
+	void tempCalc()
 	float getTemp();
 	void liveRead(int time);
 	void displaySick();
