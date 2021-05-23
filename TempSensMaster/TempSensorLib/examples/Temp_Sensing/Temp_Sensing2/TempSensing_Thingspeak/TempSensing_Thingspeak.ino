@@ -33,10 +33,9 @@ information on the library is cited below,
 #include <Adafruit_MLX90614.h>                                                  //Includes Adafruit library designed for the Temp. Sensor (MLX90614)
 #include <ESP8266WiFi.h>                                                        //Allows ESP8266 to connect to WiFi
 #include <time.h>                                                               //Allows time to be calculated via WiFi
+#include <string>
 
-
-
-String apiKey = "L50O9V2Y62H4PUAR";                                             // Write API key from ThingSpeak
+String apiKey = "1Y9IDJKPYM654Z82";                                             // Write API key from ThingSpeak
 
 const char* ssid = "esp8266";                                                   //Wifi SSID
 const char* password = "12345678";                                             //Wifi Password
@@ -55,11 +54,106 @@ double Temp_Val;                                                               /
 
 String Time_Date = "";                                                              //String holding time and date
 
+ /*Variables for average temp calc*/ 
+    const int Avg = 25;                                                                    // Number of readings to average
+    double OF[Avg];                                                                  // Array to store readings for Object temp in F
+
+
+
 /*****************************************************
  * Initialization
  ****************************************************/
 
 void setup() {
+
+initWifi();
+
+}
+
+
+
+/*****************************************************
+ * Implementation
+ ****************************************************/
+
+ 
+void loop() {
+/***********************************************************
+ * Prints Ambient and Object Temp in Fareinheit and Celsius 
+ **********************************************************/ 
+                                      
+  
+ getTemp();
+ tempCalc();
+ sendData();
+
+}
+
+
+
+
+
+/***********************************************************
+ * Function to get the time with time function referenced  
+ * from github
+ **********************************************************/
+String get_time(){
+  time_t now;
+  time(&now);
+  char time_output[30];
+  // See http://www.cplusplus.com/reference/ctime/strftime/ for strftime functions
+  strftime(time_output, 30, "%a  %d-%m-%y %T", localtime(&now)); 
+  return String(time_output); 
+}
+
+
+/***********************************************************
+ * Function to calculate if the temperature is too high
+ **********************************************************/
+void tempCalc(){
+  
+  if(Temp_Val < Fever_Temp){  //If statement to determine if the temp is lower than 100.4 degrees farenheit. Defines bool for OLED as false
+    Temp_Check = false;
+    Serial.println("Temperature is acceptable");
+  }
+  else{                       //Else to determine if temp is higher than 100.4 farenheit. Defines bool for OLED as true
+    Temp_Check = true;
+    Serial.println("Temperature is too high");
+  }
+  Serial.println();
+  delay(500);
+
+}
+  
+
+/***********************************************************
+ * Function to calculate the temperature and print to the
+ monitor
+ **********************************************************/
+void getTemp(){
+
+   for(int y = 0; y < Avg; y++){
+        OF[y] = mlx.readObjectTempF();                          // reads temp values
+      }
+    
+      for(int j = 0; j < Avg-1; j++){
+        Temp_Val += OF[j];
+      }
+    
+      Temp_Val = Temp_Val / Avg;                 //Divide by total number of readings for average
+    
+      Serial.print(Temp_Val); Serial.print("*F ");
+      Serial.println();
+}
+
+
+
+
+/***********************************************************
+ * Function to get mode of temperatures calculated
+ **********************************************************/
+void initWifi(){
+  
   Serial.begin(115200);                                                         //Initializes data rate in bits/s for microcontroller (esp8266)                            
 
   Serial.println();
@@ -86,70 +180,21 @@ void setup() {
   Serial.println("Adafruit MLX90614 test");           
   
   mlx.begin();  
-}
-
-/*****************************************************
- * Implementation
- ****************************************************/
- 
-void loop() {
-/***********************************************************
- * Prints Ambient and Object Temp in Fareinheit and Celsius 
- **********************************************************/ 
-                                      
-  
- get_temp();
- temp_calc();
 
 }
 
 
 
-
-
-/***********************************************************
- * Function to get the time with time function referenced  
- * from github
- **********************************************************/
-String get_time(){
-  time_t now;
-  time(&now);
-  char time_output[30];
-  // See http://www.cplusplus.com/reference/ctime/strftime/ for strftime functions
-  strftime(time_output, 30, "%a  %d-%m-%y %T", localtime(&now)); 
-  return String(time_output); 
-}
-
-
-/***********************************************************
- * Function to calculate if the temperature is too high
- **********************************************************/
-void temp_calc(){
-  
-  if(Temp_Val < Fever_Temp){  //If statement to determine if the temp is lower than 100.4 degrees farenheit. Defines bool for OLED as false
-    Temp_Check = false;
-    Serial.println("Temperature is acceptable");
-  }
-  else{                       //Else to determine if temp is higher than 100.4 farenheit. Defines bool for OLED as true
-    Temp_Check = true;
-    Serial.println("Temperature is too high");
-  }
-  Serial.println();
-  delay(500);
-
-}
-  
 
 /***********************************************************
  * Function to calculate the temperature and print to the
  monitor
  **********************************************************/
-void get_temp(){
-   
- if (client.connect(server,80))   //   "184.106.153.149" or api.thingspeak.com
+void sendData(){
+
+   if (client.connect(server,80))   //   "184.106.153.149" or api.thingspeak.com
  {  
-   Temp_Val = mlx.readObjectTempF();
-   Time_Date = get_time();
+   
    String postStr = apiKey;
    postStr +="&field1=";
    postStr += String(Temp_Val);
@@ -162,15 +207,12 @@ void get_temp(){
    client.print("Content-Length: ");
    client.print(postStr.length());
    client.print("\n\n");
-   client.print(postStr);
+   client.print(postStr); 
 
-  
-  Serial.print(Temp_Val); Serial.print("*F  Date and Time: "); Serial.println(Time_Date);
 
   Serial.println();
  }
     client.stop();
   
-    delay(2000);
+    delay(15000);
 }
-  
