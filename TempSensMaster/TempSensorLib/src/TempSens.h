@@ -29,7 +29,7 @@
   */
 class TempSens {
 public:
-	float Temp;
+	double Temp;
 	bool Sick;
 	const char* ssid;
 	const char* password;

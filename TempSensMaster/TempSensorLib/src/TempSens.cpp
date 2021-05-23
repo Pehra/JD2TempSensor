@@ -9,3 +9,7 @@
 ******************************/
 
 #include "TempSems.h"
+
+TempSens::TempSens(){
+	
+}
