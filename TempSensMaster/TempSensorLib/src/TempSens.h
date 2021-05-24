@@ -65,4 +65,5 @@ private:
 	void Welcome_Message();
 	void Instructions_for_user();
 	void Letting_user_know_temp_is_being_taken();
+	void testTempSensor();
  };
