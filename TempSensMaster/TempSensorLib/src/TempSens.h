@@ -51,8 +51,6 @@ private:
 	IRTherm therm; 				
 	Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); //Creates the display operator for the display 
 	
-
-	void initGoogleSheet();
 	void initWifi();
 	void initThingSpeak();
 	void initTemp();
@@ -62,4 +60,6 @@ private:
 	void Welcome_Message();
 	void Instructions_for_user();
 	void Letting_user_know_temp_is_being_taken();
+	void tempCalc();
+	void testTempSensor();
  };
