@@ -29,14 +29,8 @@
   */
 class TempSens {
 public:
-	const char* ssid = "esp8266";
-	const char* password = "12345678";
-	
-	
 	float Temp, Fever_Temp;
-	bool Sick;
-	String apiKey = "api.thingspeak.com";   
-    	WiFiClient client;	
+	bool Sick;  	
 	
 	TempSens();
 	void putSleep();
@@ -48,10 +42,12 @@ public:
 	void displaySick();
 	
 private:
-	Adafruit_MLX90614 mlx;
-
+	const char* ssid = "esp8266";
+	const char* password = "12345678";
+	
+	String apiKey = "api.thingspeak.com"; 
+	WiFiClient client;
 	IRTherm therm; 				
-
 	Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); //Creates the display operator for the display 
 	
 
