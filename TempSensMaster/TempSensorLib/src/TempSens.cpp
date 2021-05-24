@@ -252,3 +252,21 @@ void TempSens::tempCalc(){
 
 }
 
+
+/***********************************************************
+ * Function that tests the temp sensor
+ **********************************************************/
+void TempSens::testTempSensor(){
+	
+	TempSens mlx;
+	mlx.initWifi();
+	mlx.initTemp();
+	mlx.getTemp();
+	Serial.print(Temp); Serial.print("*F ");
+      	Serial.println();
+	
+	mlx.tempCalc();
+	mlx.sendData();
+	
+}
+
