@@ -123,12 +123,29 @@ void TempSens::initOLED(){
 	display.clearDisplay();
 }
 
+/*************************************************************************************************
+ * Function that generates a tone played by the buzzer when the temp is above the fever limit
+ *************************************************************************************************/
 void TempSens::soundFever(){
-	
+	for(int i = 0; i < 4; i++)
+	{
+		tone(buzzer, 3000);//Sends a 3KHz sound signal to the buzzer
+		delay(500); //wait hald a second
+	}
 }
 
+/*********************************************************************************************
+ * Function that generates a tone played by the buzzer when the temp is below the fever limit
+ *********************************************************************************************/
 void TempSens::soundOK(){
-	
+		
+		tone(buzzer, 460);//Sends a 460Hz sound signal to the buzzer
+		delay(500); //wait hald a second
+		tone(buzzer, 700);//Sends a 700Hz sound signal to the buzzer
+		delay(750); //wait hald a second
+		tone(buzzer, 1100);//Sends a 1.1KHz sound signal to the buzzer
+		delay(1000); //wait hald a second
+
 }
 
 
