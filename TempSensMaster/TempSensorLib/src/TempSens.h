@@ -33,6 +33,7 @@ public:
 	bool Sick;  	
 	
 	TempSens();
+	void Init();
 	void putSleep();
 	void wakeUp(int type);
 	void sendData();
