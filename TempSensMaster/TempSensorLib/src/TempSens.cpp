@@ -32,9 +32,28 @@ void TempSens::sendData(){
 double TempSens::getTemp(){
 	
 }
-
+/**********************************************************
+*This function takes in a selected amount of time
+*While the timer is less than the selected amount of time
+*Keep displaying the current temp 
+**********************************************************/
 void TempSens::liveRead(int time){
-	
+	//Creates a varaible that creates a timer in miliseconds 
+	timer = millis();
+	//While the timer is less than the alotted amount of time display the current temp of the person out to the OLED
+	while(timer < time)
+	{
+		float temparary = getTemp();
+		display.setTextSize(1);
+		display.setTextColor(WHITE);
+		display.setCursor(0, 10);
+		display.print(temparary);
+		display.display();
+		delay(100);
+		display.clearDisplay();
+	}
+		//Displays the final temp
+		display.print(temparary);	
 }
 
 /****************************************************
