@@ -18,6 +18,13 @@ TempSens::TempSens(){
 }
 
 /*******************************************************************************
+*
+*******************************************************************************/
+TempSens::Init(){
+	
+}
+
+/*******************************************************************************
 	putSleep(void) should put the OLED display, the MLX IR seonsor,
 	and ESP to low-power sleep mode. In this mode the device is 
 	expected to only pull 36uA. 
