@@ -41,6 +41,9 @@ public:
 	float getTemp();
 	void liveRead(int time);
 	void displaySick();
+	void testTempSensor();
+	void testBuzer();
+	void testOled();
 	
 private:
 	const char* ssid = "esp8266";
@@ -61,5 +64,4 @@ private:
 	void Instructions_for_user();
 	void Letting_user_know_temp_is_being_taken();
 	void tempCalc();
-	void testTempSensor();
  };
