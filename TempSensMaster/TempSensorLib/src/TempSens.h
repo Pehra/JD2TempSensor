@@ -8,10 +8,10 @@
 		
 ******************************/
 
-#include <Wire.h>             		//Allows the hardware implementation with microcontroller
-#include <Adafruit_MLX90614.h>      //Includes Adafruit library designed for the Temp. Sensor (MLX90614)
-#include <ESP8266WiFi.h>            //Allows ESP8266 to connect to WiFi
-#include <time.h>					//Allows time to be calculated via WiFi
+#include <Wire.h>             		//I2C library, required for MLX90614
+#include <SparkFunMLX90614.h>       	//Click here to get the library: http://librarymanager/All#Qwiic_IR_Thermometer by SparkFun
+#include <ESP8266WiFi.h>            	//Allows ESP8266 to connect to WiFi
+#include <time.h>			//Allows time to be calculated via WiFi
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -19,9 +19,9 @@
 #define BuzzerPin 12
 #define FeverTemp 100.4
 #define SCREEN_ADDRESS 0x3C 		//Sets the screen address
-#define OLED_RESET     4 			// Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_WIDTH 128 			// OLED display width, in pixels
-#define SCREEN_HEIGHT 32 			// OLED display height, in pixels
+#define OLED_RESET     4 		// Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_WIDTH 128 		// OLED display width, in pixels
+#define SCREEN_HEIGHT 32 		// OLED display height, in pixels
 
 /**
   *	Class to controle the temprature sensor modual
