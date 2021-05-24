@@ -167,6 +167,7 @@ void TempSens::soundFever(){
 	{
 		tone(buzzer, 3000);//Sends a 3KHz sound signal to the buzzer
 		delay(500); //wait hald a second
+		noTone(buzzer); //Stops the buzzers sound
 	}
 }
 
@@ -177,11 +178,13 @@ void TempSens::soundOK(){
 		
 		tone(buzzer, 460);//Sends a 460Hz sound signal to the buzzer
 		delay(500); //wait hald a second
+		noTone(buzzer);//Stops the buzzers sound
 		tone(buzzer, 700);//Sends a 700Hz sound signal to the buzzer
 		delay(750); //wait hald a second
+		noTone(buzzer);//Stops the buzzers sound
 		tone(buzzer, 1100);//Sends a 1.1KHz sound signal to the buzzer
 		delay(1000); //wait hald a second
-
+		noTone(buzzer);//Stops the buzzers sound
 }
 
 
