@@ -74,8 +74,18 @@ void TempSens::liveRead(int time){
 	
 }
 
+/****************************************************
+*This function uses the public bool sick,
+*if it is true it will run the sound for a fever
+*if it is false then it will non fever sound
+****************************************************/
 void TempSens::displaySick(){
-	
+	if(Sick == True){//Checks to see if Sick is true 
+		soundFever();//Plays the Fever sound function
+	}
+	else{
+		soundOK();//Plays the non fever sound function
+	}
 }
 	
 void TempSens::initWifi(){
