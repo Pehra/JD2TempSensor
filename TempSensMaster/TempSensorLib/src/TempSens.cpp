@@ -65,13 +65,13 @@ void TempSens::sendData(){
     delay(3000);
 }
 
-double TempSens::getTemp(){
+float TempSens::getTemp(){
 	
 	const int Avg = 25;                                         // Number of readings to average
-    double OF[Avg];                                             // Array to store readings for Object temp in F
+	float OF[Avg];                                             // Array to store readings for Object temp in F
 	
 	for(int y = 0; y < Avg; y++){
-        OF[y] = mlx.readObjectTempF();                          // reads temp values
+        OF[y] = therm.object();                          // reads temp values
       }
     
       for(int j = 0; j < Avg-1; j++){
@@ -109,19 +109,13 @@ void TempSens::initWifi(){
    WiFi.mode(WIFI_STA);                       
    WiFi.begin (ssid, password);                                                 //Starts wifi connection           
   
-   mlx.begin();  
+   therm.read();  
 }
 
-void TempSens::initThingSpeak(){
-	
-}
 
 void TempSens::initTemp(){
 	
-	apiKey = "1Y9IDJKPYM654Z82";                                       //Write API key from ThingSpeak
-	ssid = "esp8266";                                                  //Wifi SSID
-	password = "12345678";                                             //Wifi Password
-	server = "api.thingspeak.com";
+	therm.setUnit(TEMP_F);
 	Fever_Temp = 100.4;                                                //Double that holds value for temperature that classifies as too high
 }
 
@@ -220,6 +214,9 @@ void TempSens::Letting_user_know_temp_is_being_taken(); {
 	display.clearDisplay();
 }
 
+/***********************************************************
+ * Function that calculates if the users temp is too high
+ **********************************************************/
 void TempSens::tempCalc(){
 	
 	if(Temp < Fever_Temp){  //If statement to determine if the temp is lower than 100.4 degrees farenheit. Defines bool for OLED as false
