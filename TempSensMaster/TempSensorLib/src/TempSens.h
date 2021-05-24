@@ -29,16 +29,18 @@
   */
 class TempSens {
 public:
-	double Temp;
+	double Temp, Fever_Temp;
 	bool Sick;
 	const char* ssid;
 	const char* password;
+	String apiKey;   
+    WiFiClient client;	
 	
 	TempSens();
 	void putSleep();
 	void wakeUp(int type);
 	void sendData();
-	void tempCalc()
+	void tempCalc();
 	float getTemp();
 	void liveRead(int time);
 	void displaySick();
