@@ -14,14 +14,16 @@ This librry is for the hands free temperature sensor project
 *
 *******************************************************************************/
 TempSens::TempSens(){
-	
+	Init();
 }
 
 /*******************************************************************************
 *
 *******************************************************************************/
-TempSens::Init(){
-	
+void TempSens::Init(){
+	initWifi();
+	initTemp();
+	initOLED()
 }
 
 /*******************************************************************************
@@ -31,8 +33,8 @@ TempSens::Init(){
 *******************************************************************************/
 void TempSens::putSleep(){
 	display.sleepDisplay();		// Put display to sleep
-	mlx.sleep();				// Put IR sensor to sleep
-	ESP.deepSleep(0);			// Put esp to sleep
+	mlx.sleep();			// Put IR sensor to sleep
+	ESP.deepSleep(0);		// Put esp to sleep
 }
 
 /*******************************************************************************
@@ -42,7 +44,8 @@ void TempSens::putSleep(){
 *******************************************************************************/
 void TempSens::wakeUp(int type){
 	display.wakeDisplay();		// Wakeup display
-	mlx.wake();					// Wakeup IR sensor
+	mlx.wake();			// Wakeup IR sensor
+	Init();
 }
 
 /*******************************************************************************
@@ -138,9 +141,7 @@ void TempSens::displaySick(){
 *
 *******************************************************************************/
 void TempSens::initWifi(){
-  
 	Serial.begin(115200);                                                         //Initializes data rate in bits/s for microcontroller (esp8266)                            
-
 
 	WiFi.mode(WIFI_STA);                       
 	WiFi.begin (ssid, password);                                                 //Starts wifi connection           
@@ -152,7 +153,6 @@ void TempSens::initWifi(){
 *
 *******************************************************************************/
 void TempSens::initTemp(){
-	
 	therm.setUnit(TEMP_F);
 	Fever_Temp = 100.4;                                                //Double that holds value for temperature that classifies as too high
 }
