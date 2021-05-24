@@ -52,13 +52,13 @@ void TempSens::sendData(){
     delay(3000);
 }
 
-double TempSens::getTemp(){
+float TempSens::getTemp(){
 	
 	const int Avg = 25;                                         // Number of readings to average
-    double OF[Avg];                                             // Array to store readings for Object temp in F
+	float OF[Avg];                                             // Array to store readings for Object temp in F
 	
 	for(int y = 0; y < Avg; y++){
-        OF[y] = mlx.readObjectTempF();                          // reads temp values
+        OF[y] = therm.object();                          // reads temp values
       }
     
       for(int j = 0; j < Avg-1; j++){
@@ -74,8 +74,18 @@ void TempSens::liveRead(int time){
 	
 }
 
+/****************************************************
+*This function uses the public bool sick,
+*if it is true it will run the sound for a fever
+*if it is false then it will non fever sound
+****************************************************/
 void TempSens::displaySick(){
-	
+	if(Sick == True){//Checks to see if Sick is true 
+		soundFever();//Plays the Fever sound function
+	}
+	else{
+		soundOK();//Plays the non fever sound function
+	}
 }
 	
 void TempSens::initWifi(){
@@ -86,19 +96,13 @@ void TempSens::initWifi(){
    WiFi.mode(WIFI_STA);                       
    WiFi.begin (ssid, password);                                                 //Starts wifi connection           
   
-   mlx.begin();  
+   therm.read();  
 }
 
-void TempSens::initThingSpeak(){
-	
-}
 
 void TempSens::initTemp(){
 	
-	apiKey = "1Y9IDJKPYM654Z82";                                       //Write API key from ThingSpeak
-	ssid = "esp8266";                                                  //Wifi SSID
-	password = "12345678";                                             //Wifi Password
-	server = "api.thingspeak.com";
+	therm.setUnit(TEMP_F);
 	Fever_Temp = 100.4;                                                //Double that holds value for temperature that classifies as too high
 }
 
@@ -123,12 +127,29 @@ void TempSens::initOLED(){
 	display.clearDisplay();
 }
 
+/*************************************************************************************************
+ * Function that generates a tone played by the buzzer when the temp is above the fever limit
+ *************************************************************************************************/
 void TempSens::soundFever(){
-	
+	for(int i = 0; i < 4; i++)
+	{
+		tone(buzzer, 3000);//Sends a 3KHz sound signal to the buzzer
+		delay(500); //wait hald a second
+	}
 }
 
+/*********************************************************************************************
+ * Function that generates a tone played by the buzzer when the temp is below the fever limit
+ *********************************************************************************************/
 void TempSens::soundOK(){
-	
+		
+		tone(buzzer, 460);//Sends a 460Hz sound signal to the buzzer
+		delay(500); //wait hald a second
+		tone(buzzer, 700);//Sends a 700Hz sound signal to the buzzer
+		delay(750); //wait hald a second
+		tone(buzzer, 1100);//Sends a 1.1KHz sound signal to the buzzer
+		delay(1000); //wait hald a second
+
 }
 
 
@@ -180,6 +201,9 @@ void TempSens::Letting_user_know_temp_is_being_taken(); {
 	display.clearDisplay();
 }
 
+/***********************************************************
+ * Function that calculates if the users temp is too high
+ **********************************************************/
 void TempSens::tempCalc(){
 	
 	if(Temp < Fever_Temp){  //If statement to determine if the temp is lower than 100.4 degrees farenheit. Defines bool for OLED as false
