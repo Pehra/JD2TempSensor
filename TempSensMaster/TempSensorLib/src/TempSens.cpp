@@ -68,6 +68,9 @@ void TempSens::sendData(){
 	delay(3000);
 }
 
+/*******************************************************************************
+*
+*******************************************************************************/
 float TempSens::getTemp(){
 	
 	const int Avg = 25;                                         // Number of readings to average
@@ -123,7 +126,10 @@ void TempSens::displaySick(){
 		soundOK();//Plays the non fever sound function
 	}
 }
-	
+
+/*******************************************************************************
+*
+*******************************************************************************/
 void TempSens::initWifi(){
   
 	Serial.begin(115200);                                                         //Initializes data rate in bits/s for microcontroller (esp8266)                            
@@ -135,7 +141,9 @@ void TempSens::initWifi(){
 	therm.read();  
 }
 
-
+/*******************************************************************************
+*
+*******************************************************************************/
 void TempSens::initTemp(){
 	
 	therm.setUnit(TEMP_F);
@@ -190,7 +198,6 @@ void TempSens::soundOK(){
 	delay(1000); //wait hald a second
 	noTone(buzzer);//Stops the buzzers sound
 }
-
 
 /*******************************************************************************
  * Function that creates a welcome message
@@ -254,7 +261,6 @@ void TempSens::tempCalc(){
 		Serial.println("Temperature is too high");
 	}
 }
-
 
 /*******************************************************************************
  * Function that tests the temp sensor
