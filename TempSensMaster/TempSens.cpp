@@ -275,17 +275,16 @@ void TempSens::tempCalc(){
 void TempSens::testTempSensor(){
 	bool test = 1;
 	int val = 0;
-	TempSens mlx;
-	mlx.initWifi();
-	mlx.initTemp();
+	initWifi();
+	initTemp();
 	
 	while(test){
-		mlx.getTemp();
+		getTemp();
 		Serial.print(Temp); Serial.print("*F ");
 		Serial.println();
 		
-		mlx.tempCalc();
-		mlx.sendData();
+		tempCalc();
+		sendData();
 		val = val + 1;
 		
 		if(val = 15)
