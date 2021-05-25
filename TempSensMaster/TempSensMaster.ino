@@ -1,12 +1,13 @@
 #include "TempSens.h"
+TempSens val;
 
 void setup() {
-  TempSens val;
-  val.testOled();
+    val.testTempSensor();
+    val.liveRead(2000);
+
 
 }
 
 void loop() {
-  
 
 }
