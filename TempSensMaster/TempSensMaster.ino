@@ -1,7 +1,8 @@
-#include "TempSensorLib/src/TempSens.h"
+#include "TempSens.h"
 
 void setup() {
-  
+  TempSens val;
+  val.testOled();
 
 }
 

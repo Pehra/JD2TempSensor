@@ -23,7 +23,7 @@ TempSens::TempSens(){
 void TempSens::Init(){
 	initWifi();
 	initTemp();
-	initOLED()
+	initOLED();
 }
 
 /*******************************************************************************
@@ -32,8 +32,8 @@ void TempSens::Init(){
 	expected to only pull 36uA. 
 *******************************************************************************/
 void TempSens::putSleep(){
-	display.sleepDisplay();		// Put display to sleep
-	mlx.sleep();			// Put IR sensor to sleep
+	display.ssd1306_command(SSD1306_DISPLAYOFF);	// Put display to sleep
+	therm.sleep();			// Put IR sensor to sleep
 	ESP.deepSleep(0);		// Put esp to sleep
 }
 
@@ -43,8 +43,8 @@ void TempSens::putSleep(){
 	from the reset pin.
 *******************************************************************************/
 void TempSens::wakeUp(int type){
-	display.wakeDisplay();		// Wakeup display
-	mlx.wake();			// Wakeup IR sensor
+	display.ssd1306_command(SSD1306_DISPLAYON);		// Wakeup display
+	therm.wake();			// Wakeup IR sensor
 	Init();
 }
 
@@ -356,7 +356,7 @@ void TempSens::testOled(){
 			if (icons[f][YPOS] >= display.height()) {
 				// Reinitialize to a random position, just off the top
 				icons[f][XPOS]   = random(1 - w, display.width());
-				icons[f][YPOS]   = -LOGO_HEIGHT;
+				icons[f][YPOS]   = -h;
 				icons[f][DELTAY] = random(1, 6);
 			}	
 		}
