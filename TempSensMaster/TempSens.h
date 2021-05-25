@@ -25,6 +25,8 @@
 #define OLED_RESET		4 		// Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_WIDTH 	128 	// OLED display width, in pixels
 #define SCREEN_HEIGHT 	32 		// OLED display height, in pixels
+#define True 1
+#define False 0
 
 /**
   *	Class to controle the temprature sensor modual
@@ -51,7 +53,8 @@ private:
 	const char* ssid = "esp8266";
 	const char* password = "12345678";
 	
-	String apiKey = "api.thingspeak.com"; 
+	String apiKey = "1Y9IDJKPYM654Z82"; 
+  	const char* server = "api.thingspeak.com"; 
 	WiFiClient client;
 	IRTherm therm; 				
 	Adafruit_SSD1306 display; //Creates the display operator for the display 
