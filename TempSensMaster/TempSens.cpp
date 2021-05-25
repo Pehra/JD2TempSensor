@@ -110,7 +110,7 @@ void TempSens::liveRead(int time){
 	//While the timer is less than the alotted amount of time display the current temp of the person out to the OLED
 	while(timer < time)
 	{
-		float temparary = getTemp();
+		float temparary = therm.object();
 		display.setTextSize(1);
 		display.setTextColor(WHITE);
 		display.setCursor(0, 10);
