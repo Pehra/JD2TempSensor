@@ -43,7 +43,7 @@ public:
 	void wakeUp(int type);
 	void sendData();
 	float getTemp();
-	void liveRead(int time);
+	void liveRead(unsigned long timer);
 	void displaySick();
 	void testTempSensor();
 	void testBuzer();

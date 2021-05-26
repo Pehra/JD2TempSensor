@@ -27,9 +27,9 @@ void TempSens::Init(){
   
   Wire.begin(); //Joing I2C bus
 
-  //initTemp();
-	initOLED();
-  initWifi();
+  initTemp();
+  initOLED();
+  //initWifi();
 }
 
 /*******************************************************************************
@@ -113,28 +113,26 @@ float TempSens::getTemp(){
 
 /*******************************************************************************
 *This function takes in a selected amount of time
-*While the timer is less than the selected amount of time
+*loops for timer * .2sec
 *Keep displaying the current temp 
 *******************************************************************************/
-void TempSens::liveRead(int time){
-    testTempSensor();
-	//Creates a varaible that creates a timer in miliseconds 
-	unsigned long Timer = millis();
-  float temparary;
+void TempSens::liveRead(unsigned long timer){
 	//While the timer is less than the alotted amount of time display the current temp of the person out to the OLED
-	while(Timer < time)
-	{
-		temparary = therm.object();
+	for(int i =0; i < timer; i++){
+    Serial.println(i);
+    display.clearDisplay();
+    
 		display.setTextSize(1);
 		display.setTextColor(WHITE);
 		display.setCursor(0, 10);
-		display.print(temparary);
-		display.display();
-		delay(100);
-		display.clearDisplay();
+   
+    if (therm.read()){ 
+      display.print(therm.object());
+      display.display();
+    }else{Serial.println("therm.read() failed - in liveRead()");}
+		
+		delay(200);
 	}
-		//Displays the final temp
-		display.print(temparary);	
 }
 
 /*******************************************************************************
@@ -156,7 +154,18 @@ void TempSens::displaySick(){
 *******************************************************************************/
 void TempSens::initWifi(){
 	WiFi.mode(WIFI_STA);                       
-	WiFi.begin (ssid, password);                                                 //Starts wifi connection            
+	WiFi.begin (ssid, password);                 //Starts wifi connection    
+
+  Serial.print("Connecting");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+
+  Serial.print("Connected, IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 /*******************************************************************************
@@ -172,13 +181,14 @@ void TempSens::initTemp(){
   therm.setUnit(TEMP_F); // Set the library's units to Farenheit
   // Alternatively, TEMP_F can be replaced with TEMP_C for Celsius or
   // TEMP_K for Kelvin.
-  testTempSensor();
+  delay(500); // Pause for 0.5 seconds
 }
 
 /*******************************************************************************
 *Function that initializes the OLED
 *******************************************************************************/
 void TempSens::initOLED(){
+  display = Adafruit_SSD1306(128, 32, &Wire);
   //Starts up the screen
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)){
     Serial.println(F("SSD1306 allocation failed"));
@@ -298,7 +308,7 @@ void TempSens::testTempSensor(){
     Serial.print("Ambient: " + String(therm.ambient(), 2));
     Serial.println("F");
     Serial.println();
-  }else{Serial.println("therm.read() failed");}
+  }else{Serial.println("therm.read() failed - in testTempSensor()");}
   
   delay(1000);
 }
