@@ -124,7 +124,7 @@ void TempSens::liveRead(unsigned long timer){
     
 		display.setTextSize(2);
 		display.setTextColor(WHITE);
-		display.setCursor(16, 64);
+		display.setCursor(15, 10);
    
     if (therm.read()){ 
       display.print(therm.object());
