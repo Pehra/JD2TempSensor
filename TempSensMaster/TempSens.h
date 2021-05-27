@@ -50,6 +50,7 @@ public:
 	void testOled();
   void Welcome_Message();
   void Instructions_for_user();
+  void Loading();
   void Letting_user_know_temp_is_being_taken();
   void initWifi();
   void initThingSpeak();
@@ -62,8 +63,8 @@ public:
   void Display_Temp();
 	
 private:
-	const char* ssid = "esp8266";
-	const char* password = "12345678";
+	const char* ssid = "Secret_Wifi";
+	const char* password = "Festivemango242";
 	String apiKey = "1Y9IDJKPYM654Z82"; 
   const char* server = "api.thingspeak.com"; 
   

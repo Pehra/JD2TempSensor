@@ -32,7 +32,11 @@ void TempSens::putSleep(){
   //Gose into deep sleep mode
   Serial.println("Going to deep sleep");
   
-	display.ssd1306_command(SSD1306_DISPLAYOFF);	// Put display to sleep
+	//display.ssd1306_command(SSD1306_DISPLAYOFF);	// Put display to sleep
+  //delay(200);
+  display.clearDisplay();
+  display.display();
+        
 	therm.sleep();			// Put IR sensor to sleep
 	ESP.deepSleep(0);		// Put esp to sleep
 }
@@ -46,8 +50,8 @@ void TempSens::wakeUp(int type){
   //restart reason
   Serial.println(""); Serial.print("Reason startup :");Serial.println(ESP.getResetReason());
   
-	display.ssd1306_command(SSD1306_DISPLAYON);		// Wakeup display
-  delay(200);
+	//display.ssd1306_command(SSD1306_DISPLAYON);		// Wakeup display
+  //delay(200);
 	therm.wake();			// Wakeup IR sensor
 	Init();
 }
@@ -86,10 +90,13 @@ void TempSens::sendTempData(){
 *
 *******************************************************************************/
 float TempSens::getTemp(){
-	const int Avg = 25;                       // Number of readings to average 
- 
+	const int Avg = 10;                       // Number of readings to average 
+
+  Temp = 0;
 	for(int y = 0; y < Avg; y++){
-		Temp += therm.object();                 // reads temp values
+    if (therm.read()){
+		  Temp += therm.object();                 // reads temp values
+    }
 	}
 
   Temp = Temp / Avg;
@@ -98,7 +105,6 @@ float TempSens::getTemp(){
   Display_Temp();
   delay(1000);
 
-  
 	return Temp;                              // Divide by total number of readings for average
 }
 
@@ -302,16 +308,29 @@ void TempSens::Instructions_for_user(){
 //Block this in with the above set to be triggered by the motion module 
 //Creates instreuctions for the user to follow  
   display.clearDisplay();
-	display.setTextSize(1);
+	display.setTextSize(2);
 	display.setTextColor(WHITE);
 	display.setCursor(0, 10);
-	display.print("Please ");
-	display.print("stand in");
-	display.print("front of ");
-	display.print("the sensor.");
+	display.print("Scan Start");
 	display.display();
-	delay(4000);
+	delay(2500);
 	display.clearDisplay();
+}
+
+/*******************************************************************************
+ * Function that displays a set of diresctions for the user
+ *******************************************************************************/
+void TempSens::Loading(){
+//Block this in with the above set to be triggered by the motion module 
+//Creates instreuctions for the user to follow  
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  display.print("Loading...");
+  display.display();
+  delay(1200);
+  display.clearDisplay();
 }
 
 /*******************************************************************************

@@ -8,15 +8,19 @@ void setup() {
   Serial.println("Serial started...");
   
   Wire.begin(); //Joing I2C bus
-
-  TempSens_0.initTemp();
-  TempSens_0.initOLED();
-  //TempSens_0.initWifi();
   
   TempSens_0.wakeUp(1);
+  
+  TempSens_0.initOLED();
   TempSens_0.Welcome_Message();
+    
+  TempSens_0.initTemp();
+
+  TempSens_0.Loading();
+  TempSens_0.initWifi();
+  
   TempSens_0.Instructions_for_user();
-  TempSens_0.liveRead(50);
+  TempSens_0.liveRead(25);
   TempSens_0.getTemp();
   TempSens_0.displaySick();
   TempSens_0.sendTempData();
