@@ -14,22 +14,13 @@ This librry is for the hands free temperature sensor project
 *
 *******************************************************************************/
 TempSens::TempSens(){
-	Init();
 }
 
 /*******************************************************************************
 *
 *******************************************************************************/
 void TempSens::Init(){
-  Serial.begin(115200); // Initialize Serial to log output
-  Serial.println();
-  Serial.println("Serial started...");
-  
-  Wire.begin(); //Joing I2C bus
 
-  initTemp();
-  initOLED();
-  //initWifi();
 }
 
 /*******************************************************************************
@@ -41,7 +32,11 @@ void TempSens::putSleep(){
   //Gose into deep sleep mode
   Serial.println("Going to deep sleep");
   
-	display.ssd1306_command(SSD1306_DISPLAYOFF);	// Put display to sleep
+	//display.ssd1306_command(SSD1306_DISPLAYOFF);	// Put display to sleep
+  //delay(200);
+  display.clearDisplay();
+  display.display();
+        
 	therm.sleep();			// Put IR sensor to sleep
 	ESP.deepSleep(0);		// Put esp to sleep
 }
@@ -55,7 +50,8 @@ void TempSens::wakeUp(int type){
   //restart reason
   Serial.println(""); Serial.print("Reason startup :");Serial.println(ESP.getResetReason());
   
-	display.ssd1306_command(SSD1306_DISPLAYON);		// Wakeup display
+	//display.ssd1306_command(SSD1306_DISPLAYON);		// Wakeup display
+  //delay(200);
 	therm.wake();			// Wakeup IR sensor
 	Init();
 }
@@ -63,7 +59,7 @@ void TempSens::wakeUp(int type){
 /*******************************************************************************
 *
 *******************************************************************************/
-void TempSens::sendData(){
+void TempSens::sendTempData(){
 	
 	if (client.connect(server,80))   //   "184.106.153.149" or api.thingspeak.com
 	{  
@@ -94,21 +90,22 @@ void TempSens::sendData(){
 *
 *******************************************************************************/
 float TempSens::getTemp(){
-	
-	const int Avg = 25;                                         // Number of readings to average
-	float OF[Avg];                                             // Array to store readings for Object temp in F
+	const int Avg = 10;                       // Number of readings to average 
 
+  Temp = 0;
 	for(int y = 0; y < Avg; y++){
-		OF[y] = therm.object();                          // reads temp values
-	}
-    
-	for(int j = 0; j < Avg-1; j++){
-		Temp += OF[j];
+    if (therm.read()){
+		  Temp += therm.object();                 // reads temp values
+    }
 	}
 
-	Temp = Temp / Avg;                                // Divide by total number of readings for average
-    
-	return Temp;
+  Temp = Temp / Avg;
+  
+  tempCalc();
+  Display_Temp();
+  delay(1000);
+
+	return Temp;                              // Divide by total number of readings for average
 }
 
 /*******************************************************************************
@@ -117,22 +114,47 @@ float TempSens::getTemp(){
 *Keep displaying the current temp 
 *******************************************************************************/
 void TempSens::liveRead(unsigned long timer){
+  unsigned long countDown = timer / 5;
 	//While the timer is less than the alotted amount of time display the current temp of the person out to the OLED
 	for(int i =0; i < timer; i++){
     Serial.println(i);
-    display.clearDisplay();
     
-		display.setTextSize(2);
-		display.setTextColor(WHITE);
-		display.setCursor(15, 10);
-   
     if (therm.read()){ 
-      display.print(therm.object());
+      Temp = therm.object();
+
+      display.clearDisplay();
+  
+      display.setTextSize(2);
+      display.setTextColor(WHITE);
+      display.setCursor(15, 10);
+    
+      display.print(Temp);
+      display.print("F ");
+      display.print(countDown);
       display.display();
+
+      if((i%5) == 0){
+        countDown--;
+      }
     }else{Serial.println("therm.read() failed - in liveRead()");}
 		
 		delay(200);
 	}
+}
+
+/*******************************************************************************
+*This function takes displays Temp
+*
+*******************************************************************************/
+void TempSens::Display_Temp(){
+  display.clearDisplay();
+  
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(15, 10);
+
+  display.print(Temp);
+  display.display();
 }
 
 /*******************************************************************************
@@ -141,30 +163,77 @@ void TempSens::liveRead(unsigned long timer){
 *if it is false then it will non fever sound
 *******************************************************************************/
 void TempSens::displaySick(){
+  
 	if(Sick == True){//Checks to see if Sick is true 
-		soundFever();//Plays the Fever sound function
+		tone(BuzzerPin,587); delay(125); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,554); delay(125); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,523); delay(125); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,494); delay(1000); noTone(BuzzerPin);
+    delay(130);
+    noTone(BuzzerPin);    
+
+    display.clearDisplay();
+
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(15, 10);
+  
+    display.print("SICK");
+    display.display();
 	}
 	else{
-		soundOK();//Plays the non fever sound function
+		tone(BuzzerPin,1319); delay(50); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,1568); delay(50); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,2637); delay(50); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,2093); delay(50); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,2349); delay(50); noTone(BuzzerPin);
+    delay(130);
+    tone(BuzzerPin,3136); delay(50); noTone(BuzzerPin);
+    delay(130);
+    noTone(BuzzerPin); 
+  
+    display.clearDisplay();
+
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(15, 10);
+  
+    display.print("YOUR OK");
+    display.display();
 	}
+  delay(3000);
+
 }
 
 /*******************************************************************************
 *
 *******************************************************************************/
 void TempSens::initWifi(){
-	WiFi.mode(WIFI_STA);                       
-	WiFi.begin (ssid, password);                 //Starts wifi connection    
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
 
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  /* Explicitly set the ESP8266 to be a WiFi-client, otherwise, it by default,
+     would try to act as both a client and an access-point and could cause
+     network-issues with your other WiFi-devices on your WiFi-network. */
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+    //ESP.wdtFeed(); // Feed the Watchdog.
   }
-  Serial.println();
 
-  Serial.print("Connected, IP address: ");
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
 
@@ -207,28 +276,14 @@ void TempSens::initOLED(){
 * Function that generates a tone played by the buzzer when the temp is above the fever limit
 *******************************************************************************/
 void TempSens::soundFever(){
-	for(int i = 0; i < 4; i++)
-	{
-		tone(BuzzerPin, 3000);//Sends a 3KHz sound signal to the buzzer
-		delay(500); //wait hald a second
-		noTone(BuzzerPin); //Stops the buzzers sound
-	}
+
 }
 
 /*******************************************************************************
  * Function that generates a tone played by the buzzer when the temp is below the fever limit
  *******************************************************************************/
 void TempSens::soundOK(){
-		
-	tone(BuzzerPin, 460);//Sends a 460Hz sound signal to the buzzer
-	delay(500); //wait hald a second
-	noTone(BuzzerPin);//Stops the buzzers sound
-	tone(BuzzerPin, 700);//Sends a 700Hz sound signal to the buzzer
-	delay(750); //wait hald a second
-	noTone(BuzzerPin);//Stops the buzzers sound
-	tone(BuzzerPin, 1100);//Sends a 1.1KHz sound signal to the buzzer
-	delay(1000); //wait hald a second
-	noTone(BuzzerPin);//Stops the buzzers sound
+  
 }
 
 /*******************************************************************************
@@ -236,6 +291,7 @@ void TempSens::soundOK(){
  *******************************************************************************/
 void TempSens::Welcome_Message() {
 	//Creates the inital greeting for the user
+  display.clearDisplay();
 	display.setTextSize(2);
 	display.setTextColor(WHITE);
 	display.setCursor(20, 10);
@@ -251,22 +307,37 @@ void TempSens::Welcome_Message() {
 void TempSens::Instructions_for_user(){
 //Block this in with the above set to be triggered by the motion module 
 //Creates instreuctions for the user to follow  
-	display.setTextSize(1);
+  display.clearDisplay();
+	display.setTextSize(2);
 	display.setTextColor(WHITE);
 	display.setCursor(0, 10);
-	display.print("Please ");
-	display.print("stand in");
-	display.print("front of ");
-	display.print("the sensor.");
+	display.print("Scan Start");
 	display.display();
-	delay(4000);
+	delay(2500);
 	display.clearDisplay();
+}
+
+/*******************************************************************************
+ * Function that displays a set of diresctions for the user
+ *******************************************************************************/
+void TempSens::Loading(){
+//Block this in with the above set to be triggered by the motion module 
+//Creates instreuctions for the user to follow  
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  display.print("Loading...");
+  display.display();
+  delay(1200);
+  display.clearDisplay();
 }
 
 /*******************************************************************************
  * Function that displays that the users temp will be taken
  *******************************************************************************/
 void TempSens::Letting_user_know_temp_is_being_taken(){
+  display.clearDisplay();
 	display.setTextSize(1);
 	display.setTextColor(WHITE);
 	display.setCursor(0, 10);
