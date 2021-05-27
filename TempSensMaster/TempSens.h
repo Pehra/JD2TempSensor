@@ -41,13 +41,25 @@ public:
 	void Init();
 	void putSleep();
 	void wakeUp(int type);
-	void sendData();
+	void sendTempData();
 	float getTemp();
 	void liveRead(unsigned long timer);
 	void displaySick();
 	void testTempSensor();
 	void testBuzer();
 	void testOled();
+  void Welcome_Message();
+  void Instructions_for_user();
+  void Letting_user_know_temp_is_being_taken();
+  void initWifi();
+  void initThingSpeak();
+  void initTemp();
+  void initOLED();
+  void soundFever();
+  void soundOK();
+  void tempCalc();
+  void White_screen();
+  void Display_Temp();
 	
 private:
 	const char* ssid = "esp8266";
@@ -58,16 +70,5 @@ private:
 	WiFiClient client;
 	IRTherm therm; 				
 	Adafruit_SSD1306 display; //Creates the display operator for the display 
-	
-	void initWifi();
-	void initThingSpeak();
-	void initTemp();
-	void initOLED();
-	void soundFever();
-	void soundOK();
-	void Welcome_Message();
-	void Instructions_for_user();
-	void Letting_user_know_temp_is_being_taken();
-	void tempCalc();
  };
 #endif
