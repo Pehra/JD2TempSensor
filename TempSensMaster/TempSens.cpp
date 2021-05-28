@@ -17,13 +17,6 @@ TempSens::TempSens(){
 }
 
 /*******************************************************************************
-*
-*******************************************************************************/
-void TempSens::Init(){
-
-}
-
-/*******************************************************************************
 	putSleep(void) should put the OLED display, the MLX IR seonsor,
 	and ESP to low-power sleep mode. In this mode the device is 
 	expected to only pull 36uA. 
@@ -32,13 +25,11 @@ void TempSens::putSleep(){
   //Gose into deep sleep mode
   Serial.println("Going to deep sleep");
   
-	//display.ssd1306_command(SSD1306_DISPLAYOFF);	// Put display to sleep
-  //delay(200);
-  display.clearDisplay();
+  display.clearDisplay();   //Clear display to save battery
   display.display();
         
 	therm.sleep();			// Put IR sensor to sleep
-	ESP.deepSleep(0);		// Put esp to sleep
+  ESP.deepSleep(0);
 }
 
 /*******************************************************************************
@@ -49,15 +40,12 @@ void TempSens::putSleep(){
 void TempSens::wakeUp(int type){
   //restart reason
   Serial.println(""); Serial.print("Reason startup :");Serial.println(ESP.getResetReason());
-  
-	//display.ssd1306_command(SSD1306_DISPLAYON);		// Wakeup display
-  //delay(200);
+
 	therm.wake();			// Wakeup IR sensor
-	Init();
 }
 
 /*******************************************************************************
-*
+*  sends temprature data to ThingSpeak for later viewing
 *******************************************************************************/
 void TempSens::sendTempData(){
 	
@@ -87,25 +75,35 @@ void TempSens::sendTempData(){
 }
 
 /*******************************************************************************
-*
+*   taakes the users temprature and updates 'float Temp' and 'bool Sick'
 *******************************************************************************/
 float TempSens::getTemp(){
-	const int Avg = 10;                       // Number of readings to average 
+	const int Avg = 10;             // Number of readings to average 
 
   Temp = 0;
 	for(int y = 0; y < Avg; y++){
     if (therm.read()){
-		  Temp += therm.object();                 // reads temp values
+		  Temp += therm.object();     // reads temp values
     }
 	}
 
-  Temp = Temp / Avg;
+  Temp = Temp / Avg;              // Divide by total number of readings for average
+  Temp += 3;                      //add calibration offset to temprature reading
   
-  tempCalc();
-  Display_Temp();
+  tempCalc();                     //check whether the user is sick
+  
+  display.clearDisplay();
+  
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(15, 10);
+
+  display.print(Temp);            //display temp
+  display.display();
+  
   delay(1000);
 
-	return Temp;                              // Divide by total number of readings for average
+	return Temp;                              
 }
 
 /*******************************************************************************
@@ -115,12 +113,14 @@ float TempSens::getTemp(){
 *******************************************************************************/
 void TempSens::liveRead(unsigned long timer){
   unsigned long countDown = timer / 5;
-	//While the timer is less than the alotted amount of time display the current temp of the person out to the OLED
+  
+	//While the timer is less than the alotted amount of time 
+	//display the current temp of the person out to the OLED
 	for(int i =0; i < timer; i++){
     Serial.println(i);
     
-    if (therm.read()){ 
-      Temp = therm.object();
+    if (therm.read()){              //read from IR sensor
+      Temp = therm.object() +3;     //add calibration offset to temprature reading
 
       display.clearDisplay();
   
@@ -128,11 +128,12 @@ void TempSens::liveRead(unsigned long timer){
       display.setTextColor(WHITE);
       display.setCursor(15, 10);
     
-      display.print(Temp);
+      display.print(Temp);          //display temp
       display.print("F ");
-      display.print(countDown);
+      display.print(countDown);     //display counter
       display.display();
 
+      // each cycle takes .2 seconds, so 1 seconds is 5 cycles
       if((i%5) == 0){
         countDown--;
       }
@@ -143,28 +144,14 @@ void TempSens::liveRead(unsigned long timer){
 }
 
 /*******************************************************************************
-*This function takes displays Temp
-*
-*******************************************************************************/
-void TempSens::Display_Temp(){
-  display.clearDisplay();
-  
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(15, 10);
-
-  display.print(Temp);
-  display.display();
-}
-
-/*******************************************************************************
 *This function uses the public bool sick,
 *if it is true it will run the sound for a fever
 *if it is false then it will non fever sound
 *******************************************************************************/
 void TempSens::displaySick(){
-  
-	if(Sick == True){//Checks to see if Sick is true 
+
+	if(Sick == true){ //Checks to see if Sick is true 
+    //Play sick tone
 		tone(BuzzerPin,587); delay(125); noTone(BuzzerPin);
     delay(130);
     tone(BuzzerPin,554); delay(125); noTone(BuzzerPin);
@@ -174,17 +161,19 @@ void TempSens::displaySick(){
     tone(BuzzerPin,494); delay(1000); noTone(BuzzerPin);
     delay(130);
     noTone(BuzzerPin);    
-
+  
     display.clearDisplay();
 
     display.setTextSize(2);
     display.setTextColor(WHITE);
     display.setCursor(15, 10);
-  
+
+    //Display that the user is sick
     display.print("SICK");
     display.display();
 	}
-	else{
+	else{ //The user is not sick
+    //play OK tone
 		tone(BuzzerPin,1319); delay(50); noTone(BuzzerPin);
     delay(130);
     tone(BuzzerPin,1568); delay(50); noTone(BuzzerPin);
@@ -204,8 +193,9 @@ void TempSens::displaySick(){
     display.setTextSize(2);
     display.setTextColor(WHITE);
     display.setCursor(15, 10);
-  
-    display.print("YOUR OK");
+
+    // Display the user is ok
+    display.print("YOU'RE OK");
     display.display();
 	}
   delay(3000);
@@ -213,7 +203,7 @@ void TempSens::displaySick(){
 }
 
 /*******************************************************************************
-*
+*   Conects the device to wifi as a client
 *******************************************************************************/
 void TempSens::initWifi(){
   Serial.print("Connecting to ");
@@ -225,6 +215,7 @@ void TempSens::initWifi(){
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
+  //wait while conecting to wifi
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -238,7 +229,7 @@ void TempSens::initWifi(){
 }
 
 /*******************************************************************************
-*
+*   initalizes the IR sensor and sets it to Farenheit
 *******************************************************************************/
 void TempSens::initTemp(){
 	if (therm.begin() == false){ // Initialize thermal IR sensor
@@ -254,7 +245,7 @@ void TempSens::initTemp(){
 }
 
 /*******************************************************************************
-*Function that initializes the OLED
+*   Function that initializes the OLED
 *******************************************************************************/
 void TempSens::initOLED(){
   display = Adafruit_SSD1306(128, 32, &Wire);
@@ -273,20 +264,6 @@ void TempSens::initOLED(){
 }
 
 /*******************************************************************************
-* Function that generates a tone played by the buzzer when the temp is above the fever limit
-*******************************************************************************/
-void TempSens::soundFever(){
-
-}
-
-/*******************************************************************************
- * Function that generates a tone played by the buzzer when the temp is below the fever limit
- *******************************************************************************/
-void TempSens::soundOK(){
-  
-}
-
-/*******************************************************************************
  * Function that creates a welcome message
  *******************************************************************************/
 void TempSens::Welcome_Message() {
@@ -302,11 +279,9 @@ void TempSens::Welcome_Message() {
 }
 
 /*******************************************************************************
- * Function that displays a set of diresctions for the user
+ * Displays a notification that the scan is about to start
  *******************************************************************************/
 void TempSens::Instructions_for_user(){
-//Block this in with the above set to be triggered by the motion module 
-//Creates instreuctions for the user to follow  
   display.clearDisplay();
 	display.setTextSize(2);
 	display.setTextColor(WHITE);
@@ -318,11 +293,9 @@ void TempSens::Instructions_for_user(){
 }
 
 /*******************************************************************************
- * Function that displays a set of diresctions for the user
+ * Function that displays a loading animation
  *******************************************************************************/
 void TempSens::Loading(){
-//Block this in with the above set to be triggered by the motion module 
-//Creates instreuctions for the user to follow  
   display.clearDisplay();
   display.setTextSize(2);
   display.setTextColor(WHITE);
@@ -334,39 +307,23 @@ void TempSens::Loading(){
 }
 
 /*******************************************************************************
- * Function that displays that the users temp will be taken
- *******************************************************************************/
-void TempSens::Letting_user_know_temp_is_being_taken(){
-  display.clearDisplay();
-	display.setTextSize(1);
-	display.setTextColor(WHITE);
-	display.setCursor(0, 10);
-	display.print("Taking ");
-	display.print("your");
-	display.print("tempature ");
-	display.print("now:");
-	display.display();
-	delay(1000);
-	display.clearDisplay();
-}
-
-/*******************************************************************************
  * Function that calculates if the users temp is too high
  *******************************************************************************/
 void TempSens::tempCalc(){
-	
-	if(Temp < FeverTemp){  //If statement to determine if the temp is lower than 100.4 degrees farenheit. Defines bool for OLED as false
+	//If statement to determine if the temp is lower than 100.4 degrees farenheit. Defines bool for OLED as false
+	if(Temp < FeverTemp){        
 		Sick = false;
 		Serial.println("Temperature is acceptable");
 	}
-	else{                       //Else to determine if temp is higher than 100.4 farenheit. Defines bool for OLED as true
+  //Else to determine if temp is higher than 100.4 farenheit. Defines bool for OLED as true
+	else{ 
 		Sick = true;
 		Serial.println("Temperature is too high");
 	}
 }
 
 /*******************************************************************************
- * Function that tests the temp sensor
+ * Function that tests the temp sensor by reading out temps to the serial monitor 
  *******************************************************************************/
 void TempSens::testTempSensor(){
   // Call therm.read() to read object and ambient temperatures from the sensor.
@@ -385,14 +342,26 @@ void TempSens::testTempSensor(){
 }
 
 /*******************************************************************************
- * Function that tests the buzzer
+ * Function that tests the buzzer by playing the ok sound
  *******************************************************************************/
 void TempSens::testBuzer(){
-	soundOK();
+	tone(BuzzerPin,1319); delay(50); noTone(BuzzerPin);
+  delay(130);
+  tone(BuzzerPin,1568); delay(50); noTone(BuzzerPin);
+  delay(130);
+  tone(BuzzerPin,2637); delay(50); noTone(BuzzerPin);
+  delay(130);
+  tone(BuzzerPin,2093); delay(50); noTone(BuzzerPin);
+  delay(130);
+  tone(BuzzerPin,2349); delay(50); noTone(BuzzerPin);
+  delay(130);
+  tone(BuzzerPin,3136); delay(50); noTone(BuzzerPin);
+  delay(130);
+  noTone(BuzzerPin); 
 }
 
 /*******************************************************************************
- * Function that tests the oled
+ * Function that tests the oled by displaying animation
  *******************************************************************************/
 void TempSens::testOled(){
   #define XPOS   0 // Indexes into the 'icons' array in function below
