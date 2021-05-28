@@ -10,27 +10,24 @@
 #ifndef TEMPSENS_H
 #define TEMPSENS_H
 
-//#include "TempSens.cpp"
 #include <Wire.h>            	  //I2C library, required for MLX90614
 #include <SparkFunMLX90614.h>   //Click here to get the library: http://librarymanager/All#Qwiic_IR_Thermometer by SparkFun
 #include <ESP8266WiFi.h>        //Allows ESP8266 to connect to WiFi
 #include <time.h>				        //Allows time to be calculated via WiFi
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <SPI.h>                //This library allows you to communicate with SPI devices
+#include <Adafruit_GFX.h>       //Handels seding pixel data to the OLED
+#include <Adafruit_SSD1306.h>   //Driver file for OLED
 
-#define BuzzerPin 		12
-#define FeverTemp 		100.4
-#define SCREEN_ADDRESS 	0x3C 	//Sets the screen address
-#define OLED_RESET		4 		// Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_WIDTH 	128 	// OLED display width, in pixels
-#define SCREEN_HEIGHT 	32 		// OLED display height, in pixels
-#define True 1
-#define False 0
+#define BuzzerPin 		  12      //pin the buzzer is conected to 
+#define FeverTemp 		  100.4   //cuttoff temp for fever
+#define SCREEN_ADDRESS 	0x3C 	  //Sets the screen address
+#define OLED_RESET		  4 		  // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_WIDTH 	  128 	  // OLED display width, in pixels
+#define SCREEN_HEIGHT 	32 		  // OLED display height, in pixels
+#define Temp_OFFSET     3       //calibration offset for temprature reading
 
 /**
-  *	Class to controle the temprature sensor modual
-  *
+  *	Class to controle the our hands-free temprature sensor board
   */
 class TempSens {
 public:
@@ -38,7 +35,6 @@ public:
 	bool Sick;  	
 	
 	TempSens();
-	void Init();
 	void putSleep();
 	void wakeUp(int type);
 	void sendTempData();
@@ -51,20 +47,14 @@ public:
   void Welcome_Message();
   void Instructions_for_user();
   void Loading();
-  void Letting_user_know_temp_is_being_taken();
   void initWifi();
-  void initThingSpeak();
   void initTemp();
   void initOLED();
-  void soundFever();
-  void soundOK();
   void tempCalc();
-  void White_screen();
-  void Display_Temp();
 	
 private:
-	const char* ssid = "Secret_Wifi";
-	const char* password = "Festivemango242";
+	const char* ssid = "esp8266";
+	const char* password = "12345678";
 	String apiKey = "1Y9IDJKPYM654Z82"; 
   const char* server = "api.thingspeak.com"; 
   
